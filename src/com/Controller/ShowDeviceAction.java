@@ -479,7 +479,7 @@ public class ShowDeviceAction {
 		//response.setContentType("text/html;charset=utf-8");
 		pw.write(json.toString());
 	}
-	@RequestMapping("/getCompany")
+	@RequestMapping("/getCompany") 
 	public void getCompany(HttpServletResponse response) throws IOException {
 		List<MaintainCompanyVo> list = new ArrayList<MaintainCompanyVo>();
 		PrintWriter pw = response.getWriter();
