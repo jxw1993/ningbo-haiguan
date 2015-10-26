@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"   
+						"http://ibatis.apache.org/dtd/sql-map-2.dtd">
+						
+<sqlMap>
+<!-- 	<select id="getUser" parameterClass="java.lang.String" resultClass="com.vos.User"> -->
+<!-- 	<![CDATA[ -->
+<!-- 		select name, age from Student where name = #name# -->
+<!-- 	]]>	 -->
+<!-- 	</select> -->
+	<insert id="addDevice" parameterClass="java.util.Map">
+	<![CDATA[
+			insert into hmit_base_info(brand,TYPE_ID,series_no,b_date,b_company,
+				b_price,guarantee_date,expired_date,
+				company_id,login_name,login_pwd,port_number,
+				model_no,config_file_path) values (#brand#,#type#,#seriesNo#,to_date(#bDate#,'mm/dd/yyyy'),#bCompany#,#bPrice#,to_date(#guaranteeDate#,'mm/dd/yyyy'),to_date(#expireDate#,'mm/dd/yyyy'),
+								  #company#,#loginName#,#loginPwd#,#portNumber#,#modelNo#,#configFile#)
+			]]>	
+	</insert>
+<!-- 	<resultMap id="allDeviceMap" class="com.vos.Device" > -->
+<!-- 		<result property="name" column="name"/> -->
+<!-- 		<result property="brand" column="brand"/> -->
+<!-- 		<result property="seriesNo" column="seriesno"/> -->
+<!-- 		<result property="orderDate" column="orderdate"/> -->
+<!-- 		<result property="orderBy" column="orderby"/> -->
+<!-- 		<result property="price" column="price"/> -->
+<!-- 		<result property="guaranteeDate" column="guaranteeDate"/> -->
+<!-- 		<result property="expiredDate" column="expiredate"/> -->
+<!-- 	</resultMap> -->
+	<select id="getAllDevice" resultClass="com.vos.Device">
+	<![CDATA[
+		select i.id as id,i.brand as brand,t.name as type,i.series_no as seriesNo,i.b_date as bDate,i.b_company as bCompany,
+				nvl(i.b_price,0) as bPrice,i.guarantee_date as guaranteeDate,i.expired_date as expireDate,
+				c.COMPANY_NAME as company,c.CONTRACT_PERSON as contract, c.CONTRACT_NO as contractNo,i.login_name as loginName,i.login_pwd as loginPwd,nvl(i.port_number,0) as portNumber,
+				i.model_no as modelNo from hmit_base_info i,hmit_device_type t,hmit_maintain_company c
+				 where i.type_id = t.type_id and i.COMPANY_ID = c.COMPANY_ID
+	
+	]]>
+	</select>
+	<select id="getAllDeviceByType" resultClass="java.lang.Integer" parameterClass="java.util.Map">
+	<![CDATA[
+		select count(*) from hmit_base_info i
+				 where i.type_id=#typeId#
+	
+	]]>
+	</select>
+	<select id="checkIfExists" resultClass="java.lang.Integer" parameterClass="java.lang.Integer">
+	<![CDATA[
+		select count(*) from device where id=#id#
+	
+	]]>
+	</select>
+<!-- 	<parameterMap class="java.util.Map" id="deviceMap"> -->
+<!-- 		<parameter property="device" javaType="com" resultMap="deviceResult"/> -->
+<!-- 		<parameter property="id"/> -->
+<!-- 	</parameterMap> -->
+<!-- 	<resultMap class="com.vos.Device" id="deviceResult"> -->
+<!-- 		<result property="" /> -->
+<!-- 	</resultMap> -->
+<!-- <update id="updateDevice">
+		<![CDATA[
+			update device set name = #device.name#,brand=#device.brand#,seriesno=#device.seriesNo#,
+			orderdate=#device.orderDate#,orderby=#device.orderBy#,price=#device.price#, 
+			GUARANTEEDATE=#device.guaranteeDate#,expiredate=#device.expireDate# where id = #id#
+			
+		]]>
+	</update> -->	
+	<delete id="deleteDevice" parameterClass="java.lang.Integer">
+		<![CDATA[
+			delete from device where id = #id#
+		]]>
+		
+	</delete>
+ 	<select id="getDeviceByPager" resultClass="com.vos.Device" parameterClass="java.util.Map">
+	<![CDATA[			
+	        	select i.id as id,brand,t.name as TYPE,i.series_no as seriesNo,to_char(i.b_date,'yyyy-MM-dd') as bDate,i.b_company as bCompany,
+				nvl(i.b_price,0.0) as bPrice,to_char(guarantee_date,'yyyy-MM-dd') as guaranteeDate,to_char(i.expired_date,'yyyy-MM-dd')  as expireDate,
+				c.COMPANY_NAME as company,c.CONTRACT_PERSON as contract, c.CONTRACT_NO as contractNo,i.login_name as loginName,i.login_pwd as loginPwd,nvl(i.port_number,0) as portNumber,
+				i.model_no as modelNo from (select A.*,ROWNUM RN from (
+ 				select d.* from hmit_base_info d) A where ROWNUM <=#endRow#) i,hmit_device_type t,hmit_maintain_company c where rn>#beginRow# and i.type_id = t.type_id and i.COMPANY_ID = c.COMPANY_ID order by i.series_no desc
+	]]>
+	</select>
+	<select id="getDeviceByPager2" resultClass="com.vos.Device" parameterClass="java.util.Map">
+	<![CDATA[			
+       	select id,brand,i.series_no as seriesNo,i.model_no as modelNo,i.port_number as portNumber from (select A.*,ROWNUM RN from (
+ 				select d.* from hmit_base_info d) A where ROWNUM <=#endRow# and a.type_id = #typeId#) i where rn>#beginRow# and i.id <> #selfId# order by i.series_no desc
+	]]>
+	</select>
+	<select id="queryMaintainDetailById" parameterClass="java.util.Map" resultClass="com.vos.MaintainVo">
+		select 	usefor,owner,status,location,ip_addr as ip,remark,config_file_path as configFile from device_maintain where d_id = #id#
+		
+	</select>
+	<parameterMap class="java.util.Map" id="maintainInfoMap">
+		<!-- <parameter property="type" mode="IN" javaType="java.lang.String" jdbcType="VARCHAR"/> -->
+		<parameter property="bDate" mode="IN" javaType="java.lang.String" jdbcType="VARCHAR"/>
+		<parameter property="bCompany" mode="IN" javaType="java.lang.String" jdbcType="VARCHAR"/>
+		<parameter property="bPrice" mode="IN" javaType="java.lang.String" jdbcType="VARCHAR"/>
+		<parameter property="guaranteeDate" mode="IN" javaType="java.lang.String" jdbcType="VARCHAR"/>
+		<parameter property="expireDate" mode="IN" javaType="java.lang.String" jdbcType="VARCHAR"/>
+		<parameter property="company" mode="IN" javaType="java.lang.String" jdbcType="VARCHAR"/>
+		<parameter property="loginName" mode="IN" javaType="java.lang.String" jdbcType="VARCHAR"/>
+		<parameter property="loginPwd" mode="IN" javaType="java.lang.String" jdbcType="VARCHAR"/>
+		<parameter property="portNumber" mode="IN" javaType="java.lang.Integer" jdbcType="INTEGER"/>
+		<parameter property="id" mode="IN" javaType="java.lang.Integer" jdbcType="INTEGER"/>
+	</parameterMap>
+	<procedure id="updateMaintainInfo" parameterMap="maintainInfoMap">
+		{call hmit.update_maintain_info(?,?,?,?,?,?,?,?,?,?)}
+	</procedure>
+	
+	<select id="getFilePathById" parameterClass="java.lang.Integer" resultClass="java.lang.String">
+		<![CDATA[
+			select config_file_path from hmit_base_info where id=#value#
+		
+		]]>
+	</select>
+	<parameterMap class="com.vos.User" id="userInfoMap">
+		<parameter property="loginName" mode="IN" javaType="java.lang.String" jdbcType="VARCHAR"/>
+		<parameter property="password" mode="IN" javaType="java.lang.String" jdbcType="VARCHAR"/>
+		<parameter property="isValid" mode="OUT" javaType="java.lang.Integer" jdbcType="INTEGER"/>
+	</parameterMap>
+	<procedure id="validateUser" parameterMap="userInfoMap">
+		{call hmit.validate_user(?,?,?)}
+	</procedure>
+	<select id="getDeviceType" resultClass="com.vos.DeviceType">
+		<![CDATA[
+			select type_id as id,name from hmit_device_type
+		]]>
+	</select>
+	<select id="getConfigType" resultClass="com.vos.ConfigType">
+		<![CDATA[
+			select id,type as name from hmit_config_type
+		]]>
+	</select>
+	<select id="getCompany" resultClass="com.vos.MaintainCompanyVo">
+		<![CDATA[
+			select COMPANY_ID as id,COMPANY_NAME as name, CONTRACT_PERSON as contract,CONTRACT_NO as contractNo,address from hmit_maintain_company
+		]]>
+	</select>
+			<select id="getDeviceByNFC" resultClass="com.vos.Device" parameterClass="java.lang.String">
+		<![CDATA[
+			 		select i.id as id,i.brand as brand,t.name as type,i.series_no as seriesNo,i.b_date as bDate,i.b_company as bCompany,
+				nvl(i.b_price,0) as bPrice,i.guarantee_date as guaranteeDate,i.expired_date as expireDate,
+				c.COMPANY_NAME as company,c.CONTRACT_PERSON as contract, c.CONTRACT_NO as contractNo,i.login_name as loginName,i.login_pwd as loginPwd,nvl(i.port_number,0) as portNumber,
+				i.model_no as modelNo from hmit_base_info i,hmit_device_type t,hmit_maintain_company c
+				 where i.type_id = t.type_id and i.COMPANY_ID = c.COMPANY_ID and i.series_no = #seriesNo#
+		]]>
+	</select>
+	<select id="getPortNumber" resultClass="java.lang.Integer" parameterClass="java.lang.Integer">
+		<![CDATA[
+			select port_number from hmit_base_info where id = #value#
+		]]>
+	
+	</select>
+	<parameterMap class="java.util.Map" id="userInfoMap">
+		<parameter property="id" mode="IN" javaType="java.lang.Integer" jdbcType="INTEGER"/>
+		<parameter property="portNum" mode="IN" javaType="java.lang.Integer" jdbcType="INTEGER"/>
+		<parameter property="sNo" mode="OUT" javaType="java.lang.String" jdbcType="VARCHAR"/>
+		<parameter property="sName" mode="OUT" javaType="java.lang.String" jdbcType="VARCHAR"/>
+		<parameter property="nNo" mode="OUT" javaType="java.lang.String" jdbcType="VARCHAR" nullValue=""/>
+		<parameter property="nPort" mode="OUT" javaType="java.lang.Integer" jdbcType="INTEGER" nullValue=""/>
+		<parameter property="nName" mode="OUT" javaType="java.lang.String" jdbcType="VARCHAR" nullValue=""/>
+	</parameterMap>
+	<procedure id="getPortInfo" parameterMap="userInfoMap">
+	
+		{call hmit.get_port_info(?,?,?,?,?,?,?)}
+	</procedure>
+	<parameterMap class="com.vos.PortInfoVo" id="portPara">
+		<parameter property="sName" mode="IN" javaType="java.lang.String" jdbcType="VARCHAR"/>
+		<parameter property="sNo" mode="IN" javaType="java.lang.String" jdbcType="VARCHAR"/>
+		<parameter property="sPort" mode="IN" javaType="java.lang.Integer" jdbcType="INTEGER"/>
+		<parameter property="nName" mode="IN" javaType="java.lang.String" jdbcType="VARCHAR"/>
+		<parameter property="nNo" mode="IN" javaType="java.lang.String" jdbcType="VARCHAR"/>
+		<parameter property="nPort" mode="IN" javaType="java.lang.Integer" jdbcType="INTEGER"/>
+		<parameter property="isVailable" mode="IN" javaType="java.lang.String" jdbcType="VARCHAR"/>
+		<parameter property="newOrUpdate" mode="IN" javaType="java.lang.String" jdbcType="VARCHAR"/>
+		<parameter property="result" mode="OUT" javaType="java.lang.Integer" jdbcType="INTEGER"/>
+	</parameterMap>
+	<procedure id="updatePortInfo" parameterMap="portPara">
+		{call hmit.update_port_info(?,?,?,?,?,?,?,?,?)}
+	</procedure>
+</sqlMap>

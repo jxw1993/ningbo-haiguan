@@ -1,0 +1,53 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+<script type="text/javascript">
+	$(function() {
+		$('#dd').datagrid({
+			url:'',
+			title:'用户管理',
+			pagination : true,
+			pageSize:10,
+			pageList:[10,20],
+			iconCls:'icon-save',
+			fit:true,
+			fitColumns:true,
+			idField:'id',
+			columns:[[{
+				title:'编号',
+				field:'id',
+				width:100
+				},
+				{
+					title:'姓名',
+					field:'name',
+					width:100	
+					
+				},
+				{
+					title:'密码',
+					field:'password',
+					width:100
+				}
+			          
+			]]
+		
+			
+			
+			
+		})	
+	})
+	
+
+</script>
+<div class="easyui-tabs" fit="true" border="false">
+	<div title="用户管理" fit="true" border="false">
+		<table id="dd"></table>
+	</div>
+</div>
+</body>
+</html>
