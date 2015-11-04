@@ -26,11 +26,12 @@ $(function (){
 	pagination: true, //显示最下端的分页工具栏
 	rownumbers: true, //显示行数 1，2，3，4...
 	singleSelect:true,
-	//pageSize: 10, //读取分页条数，即向后台读取数据时传过去的值
-	//pageList: [10, 20, 30], //可以调整每页显示的数据，即调整pageSize每次向后台请求数据时的数据
+	pageSize: 10, //读取分页条数，即向后台读取数据时传过去的值
+	pageList: [10, 20, 30], //可以调整每页显示的数据，即调整pageSize每次向后台请求数据时的数据
 	//由于datagrid的属性过多，我就不每个都介绍了，如有需要，可以看它的API
-	sortName: "name", //初始化表格时依据的排序 字段 必须和数据库中的字段名称相同
+	sortName: "brand", //初始化表格时依据的排序 字段 必须和数据库中的字段名称相同
 	sortOrder: "asc", //正序
+	remoteSort: false,
 	columns: [[
 	{
 	field: 'brand', title: '品牌', width: 50,
@@ -356,38 +357,38 @@ $(function (){
 	});
 
 	$("#dg").datagrid('hideColumn','id');
-	var pager = $("#dg").datagrid('getPager');
-	pager.pagination({
-		pageSize:3,
-		beforePageText: '第',//页数文本框前显示的汉字  
-		afterPageText: '页    共 {pages} 页',
-		displayMsg: '当前显示 {from} - {to} 条记录   共 {total} 条记录', 
-		onBeforeRefresh:function(){
+// 	var pager = $("#dg").datagrid('getPager');
+// 	pager.pagination({
+// 		pageSize:3,
+// 		beforePageText: '第',//页数文本框前显示的汉字  
+// 		afterPageText: '页    共 {pages} 页',
+// 		displayMsg: '当前显示 {from} - {to} 条记录   共 {total} 条记录', 
+// 		onBeforeRefresh:function(){
 			
-		},
-		onSelectPage:function(pageNumber,pageSize) {
-			find(pageNumber,pageSize);
-		}
+// 		},
+// 		onSelectPage:function(pageNumber,pageSize) {
+// 			find(pageNumber,pageSize);
+// 		}
 		
-	});
-	function find(pageNumber,pageSize) {
-		$("#dg").datagrid('getPager').pagination({pageSize : pageSize, pageNumber : pageNumber});//reset
-		$("#dg").datagrid("loading"); 
-		$.ajax({
-			type:"post",
-			url:"<%=basePath%>getDeviceByPager?pageSize=" + pageSize + "&pageNumber=" + pageNumber,
-			success:function(data) {
-			 	$("#dg").datagrid('loadData',pageData(data.rows,data.total));//加载数据
-			 	$("#dg").datagrid("loaded"); 
-			}
-		});
-	}
-	function pageData(list,total){
-	     var obj=new Object(); 
-	     obj.total=total; 
-	     obj.rows=list; 
-	     return obj; 
-	 }
+// 	});
+// 	function find(pageNumber,pageSize) {
+// 		$("#dg").datagrid('getPager').pagination({pageSize : pageSize, pageNumber : pageNumber});//reset
+// 		$("#dg").datagrid("loading"); 
+// 		$.ajax({
+// 			type:"post",
+<%-- 			url:"<%=basePath%>getDeviceByPager?pageSize=" + pageSize + "&pageNumber=" + pageNumber, --%>
+// 			success:function(data) {
+// 			 	$("#dg").datagrid('loadData',pageData(data.rows,data.total));//加载数据
+// 			 	$("#dg").datagrid("loaded"); 
+// 			}
+// 		});
+// 	}
+// 	function pageData(list,total){
+// 	     var obj=new Object(); 
+// 	     obj.total=total; 
+// 	     obj.rows=list; 
+// 	     return obj; 
+// 	 }
 	
 		addNewDeviceWin();
 		updateDeviceWin();
@@ -433,13 +434,50 @@ $(function (){
 	function doSearch(value,name) {
 		alert(value);
 	}
+	function searchFunc() {
+		 $("#dg").datagrid("load",sy.serializeObject($("#searchForm").form()));
+		 
+	}
+	function clearSearch() {
+		$('#searchForm').form('clear');
+	}
+	var sy = $.extend({}, sy);
+	sy.serializeObject = function (form) { /*将form表单内的元素序列化为对象，扩展Jquery的一个方法*/
+	    var o = {};
+	    $.each(form.serializeArray(), function (index) {
+	        if (o[this['name']]) {
+	            o[this['name']] = o[this['name']] + "," + this['value'];
+	        } else {
+	            o[this['name']] = this['value'];
+	        }
+	    });
+	    return o;
+	};
 </script>
 
 <body>
-	<div data-options="region:'north',split:false">
-		<input id="search" class="easyui-searchbox" searcher="doSearch" prompt="请输入序列号查询">
+	<div data-options="region:'north',title:'高级查询'" style="height: 100px; background: #F4F4F4;" class="easyui-tabs"  border="false">
+		<div title="高级搜索">
+		<form id="searchForm">
+			<table>
+				<tr>
+					<th>品牌: </th>
+					<td><input id="brand" type="text" name="brand"></td>
+					
+				</tr>
+				<tr>
+					<th>采购时间：</th>
+					<td><input class="easyui-datebox" editable="false" name="bStartDate" /></td><td>至</td><td><input class="easyui-datebox" editable="false" name="bEndDate" /></td>
+					<td><a class="easyui-linkbutton" href="javascript:void(0);" onclick="searchFunc();">查找</a></td>
+                   	<td><a class="easyui-linkbutton" href="javascript:void(0);" onclick="clearSearch();">清空</a></td>
+				</tr>
+
+			</table>
+		
+		</form>
+		</div>
 	</div>
-	<div data-options="region:'center',split:false">
+	<div data-options="region:'center',split:false" style="margin-top: 3px">
 		<table id="dg">
 		</table>
 	</div>

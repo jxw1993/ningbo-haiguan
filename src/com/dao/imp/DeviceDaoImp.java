@@ -10,6 +10,7 @@ import com.dao.DeviceDao;
 import com.ibatis.sqlmap.client.SqlMapClient;
 import com.vos.ConfigType;
 import com.vos.Device;
+import com.vos.DeviceSearchVo;
 import com.vos.DeviceType;
 import com.vos.MaintainCompanyVo;
 import com.vos.MaintainVo;
@@ -44,12 +45,15 @@ public class DeviceDaoImp implements DeviceDao{
 	}
 
 	@Override
-	public List<Device> getAllDevice() throws SQLException {
+	public int getAllDevice(DeviceSearchVo d) throws SQLException {
 		List<Device> list = null;
-//		Map<String,Object> map = new HashMap<String,Object>();
-//		map.put("result", list);
-		list = sqlMapClient.queryForList("getAllDevice");
-		return list;
+		Map<String,Object> map = new HashMap<String,Object>();
+		map.put("count", null);
+		map.put("brand", d.getBrand());
+		map.put("bStartDate", d.getbStartDate());
+		map.put("bEndDate", d.getbEndDate());
+		list = sqlMapClient.queryForList("getAllDeviceBySearch",map);
+		return (Integer) map.get("count");
 	}
 
 	@Override
@@ -78,15 +82,18 @@ public class DeviceDaoImp implements DeviceDao{
 	}
 
 	@Override
-	public List<Device> getDeviceByPager(int firstRow, int pageSize)
+	public List<Device> getDeviceByPager(int firstRow, int pageSize, DeviceSearchVo d)
 			throws SQLException {
 		List<Device> list = null;
 		Map<String,Object> map = new HashMap<String,Object>();
 		int endRow = pageSize+firstRow;
 		map.put("beginRow", firstRow);
 		map.put("endRow", endRow);
-		list = sqlMapClient.queryForList("getDeviceByPager",map);
-		return list;
+		map.put("brand", d.getBrand());
+		map.put("bStartDate", d.getbStartDate());
+		map.put("bEndDate", d.getbEndDate());
+		sqlMapClient.queryForList("queryBySearch",map);
+		return (List<Device>) map.get("list");
 	}
 
 	@Override

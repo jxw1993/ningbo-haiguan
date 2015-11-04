@@ -9,7 +9,7 @@
 <head>
     <title></title>
     <link href="css/default.css" rel="stylesheet" type="text/css" />
-    <link rel="stylesheet" type="text/css" href="themes/default/easyui.css" />
+    <link rel="stylesheet" type="text/css" href="themes/default/easyui.css" />   
     <link rel="stylesheet" type="text/css" href="themes/icon.css" />
     
 <script type="text/javascript" src="jquery/jquery-1.7.2.min.js"></script>
@@ -29,7 +29,7 @@
 									//{"menuname":"系统日志","icon":"icon-log","url":"page/HelloJquery.jsp"}
 								]
 						},{"menuid":"8","icon":"icon-sys","menuname":"维护管理",
-							"menus":[{"menuname":"网络硬件配置","icon":"icon-nav","url":"maintain/maintain_view.jsp"},
+							"menus":[{"menuname":"网络硬件配置","icon":"icon-nav","url":""},
 									{"menuname":"配置更换历史","icon":"icon-nav","url":"page/HelloJquery.jsp"}
 								]
 						},{"menuid":"56","icon":"icon-sys","menuname":"系统设置",
@@ -91,9 +91,19 @@
             });
             
         }
-
+		function detail() {
+			//$("#p11").panel('refresh','<%=basePath%>page/loginPage.jsp');
+		    var currTab =  self.parent.$('#tabs').tabs('getSelected'); //获得当前tab
+		    //var url = $(currTab.panel('options').content).attr('src');
+		    self.parent.$('#tabs').tabs('update', {
+		      tab : currTab,
+		      options : {
+		       content : createFrame('<%=basePath%>page/loginPage.jsp')
+		      }
+		     });
+		}
         $(function() {
-
+        
             openPwd();
             //
             $('#editpass').click(function() {
@@ -116,7 +126,23 @@
 
             });
 			
-           
+            $("#p11").panel({
+                title: "标题",
+                width: 300,
+                height: 200,
+                iconCls: "icon-add",
+                collapsible: false,
+                minimizable: false,
+                maximizable: false,
+                closable: false,
+                href : '<%=basePath%>getAccountReceive',
+                onLoad : function(data) {
+                	//alert(data);
+                	
+                	
+                	
+                }
+            });
 			
 			
         });
@@ -149,9 +175,14 @@
     </div>
     <div id="mainPanle" region="center" style="background: #eee; overflow-y:hidden">
         <div id="tabs" class="easyui-tabs"  fit="true" border="false" >
-			<div title="欢迎使用" style="padding:20px;overflow:hidden;" id="home">
+			<div title="欢迎使用" style="padding:20px;overflow:hidden; background: #F0FFFF" id="home" fit="true">
 				
-			<h1></h1>
+<!-- 			 <div id="p11" class="easyui-panel" title="My Panel" >   -->
+
+<!--       				<p>panel content.</p>   -->
+
+<!--       				<p>panel content.</p>   -->
+<!--   				</div>  -->
 
 			</div>
 		</div>

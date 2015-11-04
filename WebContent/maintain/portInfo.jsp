@@ -135,16 +135,23 @@ function loadType(typeId,selfId) {
 
 }
 function next() {
+	var port = $('#portnumber').combobox('getValue');
 	var isStep1 = $('#step1').css('display');
 	var isStep2 = $('#step2').css('display');
-	if (isStep1 == 'block') {
-		$('#step1').hide();
-		$('#step2').show();
-		$('#pre').show();
-		$('#next').hide();
-		$('#btnUpdate').show();
-		$('#nextDeviceType').combobox('clear');
+	if (port == null || port == "") {
+		$.messager.alert("操作提示", "请选择本端口","info");
+		return;
+	} else {
+		if (isStep1 == 'block') {
+			$('#step1').hide();
+			$('#step2').show();
+			$('#pre').show();
+			$('#next').hide();
+			$('#btnUpdate').show();
+			$('#nextDeviceType').combobox('clear');
+		}	
 	}
+
 // 	if (isStep2 == 'block') {
 // 		var r = $("input:radio[name='typeSelected']:checked").val();
 // 		if (r == null) {
@@ -301,7 +308,7 @@ function pageData(list,total){
 	
 	 <div region="center" border="false" style="padding: 10px; background: #fff; border: 1px solid #ccc;">
           <div id="step1">
-          <div>
+          <div style="border:solid 1px red;">
           	1-> 请选择端口：<input id="portnumber" class="easyui-combobox" style="width:50px;">
           </div>
           <div style="margin-top: 5px;">
@@ -310,7 +317,7 @@ function pageData(list,total){
           	</table>
           </div> 
           </div>
-          <div id="step2" style="display: none;">
+          <div id="step2" style="display: none; border:solid 1px red;">
 			<div>
           	2 -> 请选择对端设备：<input id="nextDeviceType" class="easyui-combobox" style="width:100px;" editable="false"/>
           </div>
@@ -322,7 +329,7 @@ function pageData(list,total){
          
           </div> 
           
-          <div id="step3" style="display: none;margin-top: 5px;">
+          <div id="step3" style="display: none;margin-top: 5px; border:solid 1px red;">
           		
 			3 -> 请选择端口号： <input id="nextportnumber" class="easyui-combobox" style="width:50px;" editable="false"/>
           </div>   

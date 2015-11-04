@@ -6,6 +6,7 @@ import java.util.Map;
 
 import com.vos.ConfigType;
 import com.vos.Device;
+import com.vos.DeviceSearchVo;
 import com.vos.MaintainVo;
 import com.vos.PortInfoVo;
 
@@ -15,7 +16,7 @@ public interface DeviceDao {
 	
 	public void addDevice(Map<String,Object> map) throws SQLException;
 	
-	public List<Device> getAllDevice() throws SQLException;
+	public int getAllDevice(DeviceSearchVo d) throws SQLException;
 	
 	public int getAllDevice(int typeId) throws SQLException;
 	
@@ -25,7 +26,7 @@ public interface DeviceDao {
 	
 	public void deleteDevice(int id) throws SQLException;
 	
-	public List<Device> getDeviceByPager(int firstRow,int pageSize) throws SQLException;
+	public List<Device> getDeviceByPager(int firstRow,int pageSize,DeviceSearchVo d) throws SQLException;
 	
 	public List<Device> getDeviceByPager(int firstRow,int pageSize,int typeId, int selfId) throws SQLException;
 	

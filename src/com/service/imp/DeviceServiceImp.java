@@ -8,6 +8,7 @@ import com.dao.DeviceDao;
 import com.service.DeviceService;
 import com.vos.ConfigType;
 import com.vos.Device;
+import com.vos.DeviceSearchVo;
 import com.vos.DeviceType;
 import com.vos.MaintainCompanyVo;
 import com.vos.MaintainVo;
@@ -38,9 +39,9 @@ public class DeviceServiceImp implements DeviceService {
 	}
 
 	@Override
-	public List<Device> getAllDevice() throws SQLException {
+	public int getAllDevice(DeviceSearchVo d) throws SQLException {
 		// TODO Auto-generated method stub
-		return deviceDao.getAllDevice();
+		return deviceDao.getAllDevice(d);
 	}
 
 	@Override
@@ -62,10 +63,10 @@ public class DeviceServiceImp implements DeviceService {
 	}
 
 	@Override
-	public List<Device> getDeviceByPager(int firstRow,int pageSize) throws SQLException {
+	public List<Device> getDeviceByPager(int firstRow,int pageSize, DeviceSearchVo d) throws SQLException {
 		// TODO Auto-generated method stub
 		
-		return deviceDao.getDeviceByPager(firstRow, pageSize);
+		return deviceDao.getDeviceByPager(firstRow, pageSize,d);
 	}
 
 	@Override

@@ -24,7 +24,15 @@ $(function(){
 		      
 		      editable : false,
 		      
-		      method : 'get'
+		      method : 'get',
+		      
+		      onSelect : function(record) {
+		    	  if (record.name == '配置文件') {
+		    		  $('#configFileRow').show();
+		    	  } else {
+		    		  $('#configFileRow').hide();
+		    	  }
+		      }
 
 		  }); 
 	

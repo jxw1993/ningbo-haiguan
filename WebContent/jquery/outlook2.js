@@ -2,8 +2,20 @@
 	InitLeftMenu();
 	tabClose();
 	tabCloseEven();
+	//onTabClick();
 });
 
+//function onTabClick() {
+//	var current_tab = $('#tabs').tabs('getSelected');
+//	$('#tabs').tabs('update',{
+//		tab:current_tab,
+//		title:subtitle,
+//		content:createFrame(url),
+//		closable:true,
+//		width:$('#mainPanle').width()-10,
+//		height:$('#mainPanle').height()-26
+//	});
+//}
 //初始化左侧
 function InitLeftMenu() {
 
@@ -15,7 +27,7 @@ function InitLeftMenu() {
         menulist += '<div title="'+n.menuname+'"  icon="'+n.icon+'" style="overflow:auto;">';
 		menulist += '<ul>';
         $.each(n.menus, function(j, o) {
-			menulist += '<li><div><a target="mainFrame" href="' + o.url + '" ><span class="icon '+o.icon+'" ></span>' + o.menuname + '</a></div></li> ';
+			menulist += '<li><div><a target="mainFrame" way="' + o.url + '" ><span class="icon '+o.icon+'" ></span>' + o.menuname + '</a></div></li> ';
         });
         menulist += '</ul></div>';
     });
@@ -24,7 +36,7 @@ function InitLeftMenu() {
 	
 	$('.easyui-accordion li a').click(function(){
 		var tabTitle = $(this).text();
-		var url = $(this).attr("href");
+		var url = $(this).attr("way");
 		addTab(tabTitle,url);
 		$('.easyui-accordion li div').removeClass("selected");
 		$(this).parent().addClass("selected");
@@ -46,6 +58,7 @@ function addTab(subtitle,url){
 			width:$('#mainPanle').width()-10,
 			height:$('#mainPanle').height()-26
 		});
+		
 	}else{
 		$('#tabs').tabs('select',subtitle);
 	}

@@ -77,8 +77,11 @@
 				nvl(i.b_price,0.0) as bPrice,to_char(guarantee_date,'yyyy-MM-dd') as guaranteeDate,to_char(i.expired_date,'yyyy-MM-dd')  as expireDate,
 				c.COMPANY_NAME as company,c.CONTRACT_PERSON as contract, c.CONTRACT_NO as contractNo,i.login_name as loginName,i.login_pwd as loginPwd,nvl(i.port_number,0) as portNumber,
 				i.model_no as modelNo from (select A.*,ROWNUM RN from (
- 				select d.* from hmit_base_info d) A where ROWNUM <=#endRow#) i,hmit_device_type t,hmit_maintain_company c where rn>#beginRow# and i.type_id = t.type_id and i.COMPANY_ID = c.COMPANY_ID order by i.series_no desc
+ 				select d.* from hmit_base_info d) A where ROWNUM <=#endRow#) i,hmit_device_type t,hmit_maintain_company c where rn>#beginRow# and i.type_id = t.type_id and i.COMPANY_ID = c.COMPANY_ID order by i.series_no desc 
+ 				
 	]]>
+
+	
 	</select>
 	<select id="getDeviceByPager2" resultClass="com.vos.Device" parameterClass="java.util.Map">
 	<![CDATA[			
@@ -177,5 +180,43 @@
 	</parameterMap>
 	<procedure id="updatePortInfo" parameterMap="portPara">
 		{call hmit.update_port_info(?,?,?,?,?,?,?,?,?)}
+	</procedure>
+	<parameterMap class="java.util.Map" id="searchParam">
+		<parameter property="brand" mode="IN" javaType="java.lang.String" jdbcType="VARCHAR"/>
+		<parameter property="bStartDate" mode="IN" javaType="java.lang.String" jdbcType="VARCHAR"/>
+		<parameter property="bEndDate" mode="IN" javaType="java.lang.String" jdbcType="VARCHAR"/>
+		<parameter property="beginRow" mode="IN" javaType="java.lang.Integer" jdbcType="INTEGER"/>
+		<parameter property="endRow" mode="IN" javaType="java.lang.Integer" jdbcType="INTEGER"/>
+		<parameter property="list" mode="OUT" javaType="java.sql.ResultSet" jdbcType="ORACLECURSOR" resultMap="searchResult"/>
+	</parameterMap>
+	<resultMap class="com.vos.Device" id="searchResult">
+		 <result property="id" column="id" jdbcType="INTEGER" nullValue=""/>  
+		 <result property="brand" column="brand" jdbcType="VARCHAR" nullValue=""/> 
+		 <result property="type" column="type" jdbcType="VARCHAR" nullValue=""/> 
+		 <result property="seriesNo" column="seriesNo" jdbcType="VARCHAR" nullValue=""/> 
+		 <result property="bDate" column="bDate" jdbcType="VARCHAR" nullValue=""/> 
+		 <result property="bCompany" column="bCompany" jdbcType="VARCHAR" nullValue=""/> 
+		 <result property="bPrice" column="bPrice" jdbcType="VARCHAR" nullValue=""/> 
+		 <result property="guaranteeDate" column="guaranteeDate" jdbcType="VARCHAR" nullValue=""/> 
+		 <result property="expireDate" column="expireDate" jdbcType="VARCHAR" nullValue=""/> 
+		 <result property="company" column="company" jdbcType="VARCHAR" nullValue=""/> 
+		 <result property="contract" column="contract" jdbcType="VARCHAR" nullValue=""/> 
+		 <result property="contractNo" column="contractNo" jdbcType="VARCHAR" nullValue=""/> 
+		 <result property="loginName" column="loginName" jdbcType="VARCHAR" nullValue=""/> 
+		 <result property="loginPwd" column="loginPwd" jdbcType="VARCHAR" nullValue=""/> 
+		 <result property="portNumber" column="portNumber" jdbcType="INTEGER" nullValue=""/> 
+		 <result property="modelNo" column="modelNo" jdbcType="VARCHAR" nullValue=""/> 
+	</resultMap>
+	<procedure id="queryBySearch" parameterMap="searchParam">
+		{call hmit.query_by_search(?,?,?,?,?,?)}
+	</procedure>
+	<parameterMap class="java.util.Map" id="searchCountParam">
+		<parameter property="count" mode="OUT" javaType="java.lang.Integer" jdbcType="INTEGER"/>
+		<parameter property="brand" mode="IN" javaType="java.lang.String" jdbcType="VARCHAR"/>
+		<parameter property="bStartDate" mode="IN" javaType="java.lang.String" jdbcType="VARCHAR"/>
+		<parameter property="bEndDate" mode="IN" javaType="java.lang.String" jdbcType="VARCHAR"/>
+	</parameterMap>
+	<procedure id="getAllDeviceBySearch" parameterMap="searchCountParam">
+	 	{call hmit.get_device_count_by_search(?,?,?,?)}
 	</procedure>
 </sqlMap>

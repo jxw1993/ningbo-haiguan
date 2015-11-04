@@ -50,6 +50,7 @@ import com.service.DeviceService;
 import com.service.UserLoginService;
 import com.vos.ConfigType;
 import com.vos.Device;
+import com.vos.DeviceSearchVo;
 import com.vos.DeviceType;
 import com.vos.Json;
 import com.vos.MaintainCompanyVo;
@@ -155,8 +156,9 @@ public class ShowDeviceAction {
 		List<Map<String,Object>> list = new ArrayList<Map<String,Object>>();
 		Map <String, Object>map = new HashMap<String, Object>();
 		List<Device> dl = new ArrayList<Device>();
+		int count = 0;
 		try {
-			dl = deviceService.getAllDevice();
+			 count = deviceService.getAllDevice(new DeviceSearchVo());
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -164,7 +166,7 @@ public class ShowDeviceAction {
 		list.add(map);
 		Map<String,Object> resultMap = new HashMap<String, Object>();
 		resultMap.put("rows", dl);
-		resultMap.put("total", dl.size());
+		resultMap.put("total", count);
 		return resultMap;
 		
 	}
@@ -204,8 +206,8 @@ public class ShowDeviceAction {
 	}
 	@RequestMapping("/getDeviceByPager")
 	@ResponseBody
-	public Map<String,Object> getDeviceByPager(@RequestParam("pageSize") Integer pageSize,
-			@RequestParam("pageNumber") Integer pageNumber) {
+	public Map<String,Object> getDeviceByPager(@RequestParam("rows") Integer pageSize,@ModelAttribute DeviceSearchVo d,
+			@RequestParam("page") Integer pageNumber) {
 		Map<String,Object> map = new HashMap<String,Object>();
 		List<Device> pageList = new ArrayList<Device>();
 		List<Device> totalList = new ArrayList<Device>();
@@ -213,9 +215,9 @@ public class ShowDeviceAction {
 		int intPageSize=pageSize==null||pageSize<=0?10:pageSize;;
 		int firstRow = (pageNumber - 1) * pageSize;
 		try{
-			pageList = deviceService.getDeviceByPager(firstRow, pageSize);
-			totalList = deviceService.getAllDevice();
-			int count = totalList.size();
+			pageList = deviceService.getDeviceByPager(firstRow, pageSize,d);
+			int count = deviceService.getAllDevice(d);
+			//int count = totalList.size();
 			map.put("rows", pageList);
 			map.put("total", count);
 			return map;
@@ -592,5 +594,30 @@ public class ShowDeviceAction {
 			e.printStackTrace();
 		} 
 
+	}
+	@RequestMapping("getAccountReceive")
+	public void getAccountReceive(HttpServletResponse response) {
+		try {
+			PrintWriter pw = response.getWriter();
+			response.setContentType("text/html;charset=utf-8");
+			List<PortVo> list = new ArrayList<PortVo>();
+			int portNum = deviceService.getPortNumber(5);
+			for(int i = 1 ; i <= portNum ; i++) {
+				PortVo pvo = new PortVo();
+				pvo.setId(i);
+				list.add(pvo);
+			}
+			for (PortVo vo : list) {
+				pw.write("<a href=\"javascript:void(0)\" onclick=\"detail()\">\""+vo.getId() +"\"</a><br>");
+			}
+//			JSONArray json = JSONArray.fromObject(list);
+//			pw.write(json.toString());
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 }
