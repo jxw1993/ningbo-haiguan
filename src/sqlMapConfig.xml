@@ -7,4 +7,7 @@
 	<settings lazyLoadingEnabled="true" useStatementNamespaces="false" />
 	<!-- 配置sql映射文件 -->
 	<sqlMap resource="com/vos/sqlMapXML/Device.xml" />
+	<sqlMap resource="com/vos/sqlMapXML/JiangBeiData.xml" />
+	<sqlMap resource="com/vos/sqlMapXML/IRMS.xml" />
 </sqlMapConfig>	
+

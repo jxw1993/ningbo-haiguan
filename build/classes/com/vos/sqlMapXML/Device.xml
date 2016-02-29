@@ -148,7 +148,7 @@
 				 where i.type_id = t.type_id and i.COMPANY_ID = c.COMPANY_ID and i.series_no = #seriesNo#
 		]]>
 	</select>
-	<select id="getPortNumber" resultClass="java.lang.Integer" parameterClass="java.lang.Integer">
+	<select id="getPortNumbers" resultClass="java.lang.Integer" parameterClass="java.lang.Integer">
 		<![CDATA[
 			select port_number from hmit_base_info where id = #value#
 		]]>

@@ -9,8 +9,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
-import java.io.UnsupportedEncodingException;
-import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
@@ -21,38 +19,29 @@ import java.util.List;
 import java.util.Map;
 
 import javax.annotation.Resource;
-import javax.print.attribute.HashAttributeSet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import net.sf.json.JSON;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 
 import org.apache.commons.fileupload.FileItem;
-import org.apache.commons.fileupload.FileUploadException;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.ServletRequestUtils;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.SessionAttributes;
-import org.springframework.web.servlet.ModelAndView;
 
 import com.Exception.HmitException;
-import com.ibatis.common.jdbc.SimpleDataSource;
-import com.ibatis.sqlmap.client.SqlMapException;
 import com.service.DeviceService;
 import com.service.UserLoginService;
 import com.vos.ConfigType;
 import com.vos.Device;
 import com.vos.DeviceSearchVo;
 import com.vos.DeviceType;
-import com.vos.Json;
 import com.vos.MaintainCompanyVo;
 import com.vos.MaintainVo;
 import com.vos.PortInfoVo;
@@ -95,61 +84,6 @@ public class ShowDeviceAction {
 		this.deviceService = deviceService;
 	}
 
-//	@RequestMapping(value="/hello",method = RequestMethod.POST)
-//	
-//	public String handleRequest() throws Exception {
-//		//System.out.println("age is " + user.getAge());
-//		//String s = deviceService.getAllUser();
-//		System.out.println("asd");
-//		return "hello";
-//	}
-	 
-//	@RequestMapping("/showUser")
-//	public ModelAndView showUser(){
-//		ModelAndView mav = new ModelAndView("login", "common", new User());
-//		return mav;
-//	}
-/*	@RequestMapping("/addDevice")
-	public void addDevice(@RequestParam("jsonDate") String jsonData,@RequestParam("id") int id,
-			HttpServletRequest request, HttpServletResponse response) {
-		try {
-			 String str = URLDecoder.decode(request.getParameter("jsonDate"),"UTF-8");  
-			JSONObject object = JSONObject.fromObject(str);
-			Device device = new Device();
-//			device.setName(object.getString("name"));
-//			device.setBrand(object.getString("brand"));
-//			device.setOrderDate(object.getString("orderDate"));
-//			device.setOrderBy(object.getString("orderBy"));
-//			device.setPrice(object.getString("price"));
-//			device.setSeriesNo(object.getString("seriesNo"));
-//			device.setGuaranteeDate(object.getString("guaranteeDate"));
-//			device.setExpireDate(object.getString("expireDate"));
-			//sNo = object.getString("seriesNo");//pre-condition:seriesNo is unique 
-			try {
-				//1.first check if this record is in db(this part can code in store procedure)
-				int i = deviceService.checkIfExists(id);
-				if (i == 1) {
-					deviceService.updateDevice(device, id);
-				} else {
-					deviceService.addDevice(device);
-				}
-				
-				PrintWriter pw = response.getWriter();
-				pw.print(true);
-			} catch (SQLException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-				PrintWriter pw = response.getWriter();
-				pw.print(false);
-			}
-
-
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-
-	}*/
 	@RequestMapping("/getAllDevice")
 	@ResponseBody
 	public Map<String,Object> getAllDevice() {
@@ -620,4 +554,6 @@ public class ShowDeviceAction {
 			e.printStackTrace();
 		}
 	}
+	
+	
 }

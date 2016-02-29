@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"   
+						"http://ibatis.apache.org/dtd/sql-map-2.dtd">
+						
+<sqlMap>
+    <select id="getIndicatorList" resultClass="com.vos.IndicatorVO">
+	   select a.indicator_id,a.name,b.value,b.percent,a.level_id,a.type_id,a.indicator_desc,a.unit,a.platform_id,a.status 
+	   from jiangbei_indicator a 
+	   inner join jiangbei_monthly_data b 
+	   where a.indicator_id = b.indicator_id
+	</select>
+    
+</sqlMap>
