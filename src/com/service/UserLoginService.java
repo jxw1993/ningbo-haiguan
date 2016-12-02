@@ -6,5 +6,5 @@ import com.vos.User;
 
 public interface UserLoginService {
 
-	public int validateUser(User user) throws SQLException;
+	public User validateUser(User user) throws SQLException;
 }

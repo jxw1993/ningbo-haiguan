@@ -1,8 +1,10 @@
 package com.dao;
 
+import java.sql.SQLException;
+
 import com.vos.User;
 
 public interface UserLoginDao {
 
-	public int validateUser(User user);
+	public User validateUser(User user) throws SQLException;
 }

@@ -1,5 +1,6 @@
 package com.Exception;
 
+@SuppressWarnings("serial")
 public class HmitException extends Exception {
 
 	//private String errMsg;

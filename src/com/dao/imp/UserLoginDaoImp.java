@@ -17,13 +17,7 @@ public class UserLoginDaoImp implements UserLoginDao {
 		this.sqlMapClient = sqlMapClient;
 	}
 
-	public int validateUser(User user) {
-		try {
-			sqlMapClient.queryForObject("validateUser",user);
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		return user.getIsValid();
+	public User validateUser(User user) throws SQLException {
+		return (User) sqlMapClient.queryForObject("validateUser",user);
 	}
 }

@@ -1,222 +1,824 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"   
 						"http://ibatis.apache.org/dtd/sql-map-2.dtd">
-						
+
 <sqlMap>
-<!-- 	<select id="getUser" parameterClass="java.lang.String" resultClass="com.vos.User"> -->
-<!-- 	<![CDATA[ -->
-<!-- 		select name, age from Student where name = #name# -->
-<!-- 	]]>	 -->
-<!-- 	</select> -->
-	<insert id="addDevice" parameterClass="java.util.Map">
-	<![CDATA[
-			insert into hmit_base_info(brand,TYPE_ID,series_no,b_date,b_company,
-				b_price,guarantee_date,expired_date,
-				company_id,login_name,login_pwd,port_number,
-				model_no,config_file_path) values (#brand#,#type#,#seriesNo#,to_date(#bDate#,'mm/dd/yyyy'),#bCompany#,#bPrice#,to_date(#guaranteeDate#,'mm/dd/yyyy'),to_date(#expireDate#,'mm/dd/yyyy'),
-								  #company#,#loginName#,#loginPwd#,#portNumber#,#modelNo#,#configFile#)
-			]]>	
-	</insert>
-<!-- 	<resultMap id="allDeviceMap" class="com.vos.Device" > -->
-<!-- 		<result property="name" column="name"/> -->
-<!-- 		<result property="brand" column="brand"/> -->
-<!-- 		<result property="seriesNo" column="seriesno"/> -->
-<!-- 		<result property="orderDate" column="orderdate"/> -->
-<!-- 		<result property="orderBy" column="orderby"/> -->
-<!-- 		<result property="price" column="price"/> -->
-<!-- 		<result property="guaranteeDate" column="guaranteeDate"/> -->
-<!-- 		<result property="expiredDate" column="expiredate"/> -->
-<!-- 	</resultMap> -->
-	<select id="getAllDevice" resultClass="com.vos.Device">
-	<![CDATA[
-		select i.id as id,i.brand as brand,t.name as type,i.series_no as seriesNo,i.b_date as bDate,i.b_company as bCompany,
-				nvl(i.b_price,0) as bPrice,i.guarantee_date as guaranteeDate,i.expired_date as expireDate,
-				c.COMPANY_NAME as company,c.CONTRACT_PERSON as contract, c.CONTRACT_NO as contractNo,i.login_name as loginName,i.login_pwd as loginPwd,nvl(i.port_number,0) as portNumber,
-				i.model_no as modelNo from hmit_base_info i,hmit_device_type t,hmit_maintain_company c
-				 where i.type_id = t.type_id and i.COMPANY_ID = c.COMPANY_ID
-	
-	]]>
-	</select>
-	<select id="getAllDeviceByType" resultClass="java.lang.Integer" parameterClass="java.util.Map">
-	<![CDATA[
-		select count(*) from hmit_base_info i
-				 where i.type_id=#typeId#
-	
-	]]>
-	</select>
-	<select id="checkIfExists" resultClass="java.lang.Integer" parameterClass="java.lang.Integer">
-	<![CDATA[
-		select count(*) from device where id=#id#
-	
-	]]>
-	</select>
-<!-- 	<parameterMap class="java.util.Map" id="deviceMap"> -->
-<!-- 		<parameter property="device" javaType="com" resultMap="deviceResult"/> -->
-<!-- 		<parameter property="id"/> -->
-<!-- 	</parameterMap> -->
-<!-- 	<resultMap class="com.vos.Device" id="deviceResult"> -->
-<!-- 		<result property="" /> -->
-<!-- 	</resultMap> -->
-<!-- <update id="updateDevice">
+	<!-- 登陆-->
+	<select id="validateUser" parameterClass="com.vos.User" resultClass="com.vos.User">
 		<![CDATA[
-			update device set name = #device.name#,brand=#device.brand#,seriesno=#device.seriesNo#,
-			orderdate=#device.orderDate#,orderby=#device.orderBy#,price=#device.price#, 
-			GUARANTEEDATE=#device.guaranteeDate#,expiredate=#device.expireDate# where id = #id#
-			
+			 select * from hmit_user where login_name=#login_name# and password=#password#
 		]]>
-	</update> -->	
+	</select>
+	
+	<!-- Customer -->
+	<select id="getAllCustomer" resultClass="com.vos.User" parameterClass="java.util.Map">
+		<![CDATA[
+			select customer_id,full_name,login_name,password,phone,address,email
+			from hmit_user where role_id=2 
+		]]>
+		<dynamic>
+	 		<isNotEmpty prepend="AND" property="search">       
+                (full_name like '%$search$%')    	
+          	</isNotEmpty>
+          	<isNotEmpty prepend="OR" property="search">       
+                (login_name like '%$search$%')    	
+          	</isNotEmpty>  
+          	<isNotEmpty prepend="OR" property="search">       
+                (password like '%$search$%')    	
+          	</isNotEmpty>  
+       		<isNotEmpty prepend="OR" property="search">       
+                (phone like '%$search$%')    	
+          	</isNotEmpty>  
+        	<isNotEmpty prepend="OR" property="search">       
+                (address like '%$search$%')    	
+          	</isNotEmpty>
+          	<isNotEmpty prepend="OR" property="search">       
+                (email like '%$search$%')    	
+          	</isNotEmpty>            
+		</dynamic>	
+		group by customer_id ASC
+		limit #firstRow#,#pageSize#
+	</select>
+		
+<!-- 	<select id="getAllCustomerList" resultClass="com.vos.User" parameterClass="java.util.Map">
+		<![CDATA[
+			select customer_id,full_name,login_name,password,phone,address,email
+			from hmit_user where role_id=2 and full_name like '%$search$%'
+			or login_name like '%$search$%'	or password like '%$search$%'
+			or phone like '%$search$%' 		or address like '%$search$%'
+			or email like '%$search$%'		or customer_id =#search# 
+			limit #firstRow#,#pageSize#
+		]]>
+	</select> -->
+
+	<select id="getAllCustomerCount" parameterClass="com.vos.User" resultClass="java.lang.Integer" >
+		<![CDATA[
+			select count(*) from hmit_user where role_id=2
+		]]>
+	</select>
+	
+	<insert id="addCustomer" parameterClass="com.vos.User">
+		<![CDATA[				  
+			insert into hmit_user(customer_id,full_name,login_name,password,phone,address,email,role_id)
+              values(#customer_id#,#full_name#,#login_name#,#password#,#phone#,#address#,#email#,#role_id#)
+			]]>
+	</insert>
+	
+	<delete id="deleteCustomer"  parameterClass="java.lang.Integer">
+		delete from hmit_user where customer_id=#customer_id#
+	</delete>
+	
+	<update id="updateCustomer" parameterClass="com.vos.User">
+		<![CDATA[
+			update hmit_user set login_name=#login_name#,password=#password#,
+			phone=#phone#,address=#address#,email=#email#  where customer_id=#customer_id#
+		]]>
+	</update>
+	
+	<select id="getDeviceTask" resultClass="com.vos.CheckTask" parameterClass="java.util.Map">
+		<![CDATA[
+			select plan_id,brand,name,model_no,full_name,check_time,check_cycle,remark
+			from hmit_check_distribution,hmit_base_info,hmit_user,hmit_device_type
+			where hmit_base_info.type_id=hmit_device_type.type_id
+			and hmit_check_distribution.device_id=hmit_base_info.device_id
+			and hmit_check_distribution.customer_id=hmit_user.customer_id
+			and hmit_base_info.customer_id =#customer_id#
+			ORDER BY plan_id ASC
+		]]>
+	</select>
+	
+	<select id="getDeviceRecord" resultClass="com.vos.Check" parameterClass="java.util.Map">
+		<![CDATA[
+			select id,brand,name,model_no,content_result,check_result,check_else,full_name,check_time
+			from hmit_check_record,hmit_user,hmit_base_info,hmit_device_type
+			where hmit_check_record.customer_id=hmit_user.customer_id
+			and hmit_base_info.device_id=hmit_check_record.device_id
+			and hmit_base_info.type_id=hmit_device_type.type_id
+			and hmit_base_info.customer_id=#customer_id#
+		]]>
+	</select>
+	
+	<select id="getDeviceError" resultClass="com.vos.CheckError" parameterClass="java.util.Map">
+		<![CDATA[
+			select id,brand,name,model_no,handle_method,handle_result,handle_time,handle_remark 
+			from hmit_check_record,hmit_base_info,hmit_device_type
+			where hmit_check_record.device_id=hmit_base_info.device_id
+			and hmit_base_info.type_id=hmit_device_type.type_id
+			and content_result= 2 
+			and hmit_base_info.customer_id=#customer_id# ORDER BY id ASC
+		]]>
+	</select>
+	
+	<!-- Device -->
+	<select id="getAllDevice" resultClass="com.vos.Device" parameterClass="java.util.Map">
+		<![CDATA[
+		 	select full_name,name,company_name,
+			device_id,brand,series_no,b_date,b_company,b_price,guarantee_date,expired_date,hmit_base_info.login_name,login_pwd,
+			location,port_number,config_file_path,config_explain_file_path,model_no,status,disable_date,life_cycle
+		 	from hmit_base_info
+			left join hmit_device_type on hmit_base_info.type_id = hmit_device_type.type_id
+			left join hmit_maintain_company on hmit_base_info.company_id=hmit_maintain_company.company_id
+			left join hmit_user on hmit_base_info.customer_id=hmit_user.customer_id
+		]]>
+		<dynamic prepend="where"> 
+          	<isNotEmpty prepend="and" property="search">       
+                (brand like '%$search$%')    	
+          	</isNotEmpty>  
+          	<isNotEmpty prepend="or" property="search">       
+                (name like '%$search$%')    	
+          	</isNotEmpty>
+          	<isNotEmpty prepend="or" property="search">       
+                (series_no like '%$search$%')    	
+          	</isNotEmpty>
+          	<isNotEmpty prepend="or" property="search">       
+                (model_no like '%$search$%')    	
+          	</isNotEmpty>
+          	<isNotEmpty prepend="or" property="search">       
+                (b_company like '%$search$%')    	
+          	</isNotEmpty>
+          	<isNotEmpty prepend="or" property="search">       
+                (location like '%$search$%')    	
+          	</isNotEmpty>
+		</dynamic>	
+		order by device_id ASC
+		limit #firstRow#,#pageSize#
+	</select>
+		
+	<!-- <select id="getAllDeviceList" resultClass="com.vos.Device" parameterClass="java.util.Map">
+		<![CDATA[
+			select full_name,name,company_name,
+			device_id,brand,series_no,b_date,b_company,b_price,guarantee_date,expired_date,hmit_base_info.login_name,login_pwd,
+			location,port_number,config_file_path,config_explain_file_path,model_no,status,disable_date,life_cycle
+			from hmit_base_info,hmit_device_type,hmit_maintain_company,hmit_user
+			where hmit_base_info.type_id=hmit_device_type.type_id
+		    AND hmit_base_info.company_id=hmit_maintain_company.company_id
+		    AND hmit_base_info.customer_id=hmit_user.customer_id
+		    AND  full_name like '%$search$%' or name like '%$search$%'
+		    or company_name like '%$search$%'  or brand like '%$search$%'  or series_no like '%$search$%'
+		    or b_date like '%$search$%'  or b_company like '%$search$%'  or b_price like '%$search$%'
+		    or guarantee_date like '%$search$%'  or expired_date like '%$search$%'  or hmit_base_info.login_name like '%$search$%'
+		    or login_pwd like '%$search$%'  or location like '%$search$%'  or port_number like '%$search$%'
+		    or config_file_path like '%$search$%'  or config_explain_file_path like '%$search$%'  or model_no like '%$search$%'
+		    or status like '%$search$%'  or disable_date like '%$search$%'  or life_cycle like '%$search$%'
+	     	or device_id =#search# 
+			limit #firstRow#,#pageSize#
+		]]>
+	</select> -->
+
+	<select id="getAllDeviceCount" parameterClass="com.vos.Device" resultClass="java.lang.Integer" >
+		<![CDATA[
+			select count(*) from hmit_base_info
+		]]>
+	</select>
+	
+	<insert id="addDevice" parameterClass="java.util.Map">
+		<![CDATA[
+			insert into hmit_base_info(customer_id,type_id,company_id,
+			brand,series_no,b_date,b_company,b_price,guarantee_date,expired_date,
+			hmit_base_info.login_name,login_pwd,location,port_number,config_file_path,
+			config_explain_file_path,model_no,status,disable_date,life_cycle) 
+			values (#customer_id#,#type_id#,#company_id#,
+			#brand#,#series_no#,#b_date#,#b_company#,#b_price#,#guarantee_date#,
+			#expired_date#,#login_name#,#login_pwd#,#location#,#port_number#,#config_file_path#,
+			#config_explain_file_path#,#model_no#,#status#,#disable_date#,#life_cycle#)
+		]]>
+		<selectKey resultClass="java.lang.Integer" keyProperty="device_id">
+			select last_insert_id() as device_id
+		</selectKey>
+	</insert>
+	
 	<delete id="deleteDevice" parameterClass="java.lang.Integer">
 		<![CDATA[
-			delete from device where id = #id#
+			delete from hmit_base_info where device_id = #device_id#
 		]]>
-		
 	</delete>
- 	<select id="getDeviceByPager" resultClass="com.vos.Device" parameterClass="java.util.Map">
-	<![CDATA[			
-	        	select i.id as id,brand,t.name as TYPE,i.series_no as seriesNo,to_char(i.b_date,'yyyy-MM-dd') as bDate,i.b_company as bCompany,
-				nvl(i.b_price,0.0) as bPrice,to_char(guarantee_date,'yyyy-MM-dd') as guaranteeDate,to_char(i.expired_date,'yyyy-MM-dd')  as expireDate,
-				c.COMPANY_NAME as company,c.CONTRACT_PERSON as contract, c.CONTRACT_NO as contractNo,i.login_name as loginName,i.login_pwd as loginPwd,nvl(i.port_number,0) as portNumber,
-				i.model_no as modelNo from (select A.*,ROWNUM RN from (
- 				select d.* from hmit_base_info d) A where ROWNUM <=#endRow#) i,hmit_device_type t,hmit_maintain_company c where rn>#beginRow# and i.type_id = t.type_id and i.COMPANY_ID = c.COMPANY_ID order by i.series_no desc 
- 				
-	]]>
-
 	
-	</select>
-	<select id="getDeviceByPager2" resultClass="com.vos.Device" parameterClass="java.util.Map">
-	<![CDATA[			
-       	select id,brand,i.series_no as seriesNo,i.model_no as modelNo,i.port_number as portNumber from (select A.*,ROWNUM RN from (
- 				select d.* from hmit_base_info d) A where ROWNUM <=#endRow# and a.type_id = #typeId#) i where rn>#beginRow# and i.id <> #selfId# order by i.series_no desc
-	]]>
-	</select>
-	<select id="queryMaintainDetailById" parameterClass="java.util.Map" resultClass="com.vos.MaintainVo">
-		select 	usefor,owner,status,location,ip_addr as ip,remark,config_file_path as configFile from device_maintain where d_id = #id#
-		
-	</select>
-	<parameterMap class="java.util.Map" id="maintainInfoMap">
-		<!-- <parameter property="type" mode="IN" javaType="java.lang.String" jdbcType="VARCHAR"/> -->
-		<parameter property="bDate" mode="IN" javaType="java.lang.String" jdbcType="VARCHAR"/>
-		<parameter property="bCompany" mode="IN" javaType="java.lang.String" jdbcType="VARCHAR"/>
-		<parameter property="bPrice" mode="IN" javaType="java.lang.String" jdbcType="VARCHAR"/>
-		<parameter property="guaranteeDate" mode="IN" javaType="java.lang.String" jdbcType="VARCHAR"/>
-		<parameter property="expireDate" mode="IN" javaType="java.lang.String" jdbcType="VARCHAR"/>
-		<parameter property="company" mode="IN" javaType="java.lang.String" jdbcType="VARCHAR"/>
-		<parameter property="loginName" mode="IN" javaType="java.lang.String" jdbcType="VARCHAR"/>
-		<parameter property="loginPwd" mode="IN" javaType="java.lang.String" jdbcType="VARCHAR"/>
-		<parameter property="portNumber" mode="IN" javaType="java.lang.Integer" jdbcType="INTEGER"/>
-		<parameter property="id" mode="IN" javaType="java.lang.Integer" jdbcType="INTEGER"/>
-	</parameterMap>
-	<procedure id="updateMaintainInfo" parameterMap="maintainInfoMap">
-		{call hmit.update_maintain_info(?,?,?,?,?,?,?,?,?,?)}
-	</procedure>
+	<update id="updateDevice" parameterClass="java.util.Map">
+		 <![CDATA[
+			update hmit_base_info set device_id=#device_id#,b_date=#b_date#,b_company=#b_company#,b_price=#b_price#,
+			guarantee_date=#guarantee_date#,expired_date=#expired_date#,login_name=#login_name#,
+			login_pwd=#login_pwd#,port_number=#port_number#,location=#location#,
+			config_file_path=#config_file_path#,config_explain_file_path=#config_explain_file_path#,
+			status=#status#,disable_date=#disable_date#,life_cycle=#life_cycle#
+			where device_id=#device_id# 
+		]]> 
+	</update> 
 	
-	<select id="getFilePathById" parameterClass="java.lang.Integer" resultClass="java.lang.String">
-		<![CDATA[
-			select config_file_path from hmit_base_info where id=#value#
-		
-		]]>
-	</select>
-	<parameterMap class="com.vos.User" id="userInfoMap">
-		<parameter property="loginName" mode="IN" javaType="java.lang.String" jdbcType="VARCHAR"/>
-		<parameter property="password" mode="IN" javaType="java.lang.String" jdbcType="VARCHAR"/>
-		<parameter property="isValid" mode="OUT" javaType="java.lang.Integer" jdbcType="INTEGER"/>
-	</parameterMap>
-	<procedure id="validateUser" parameterMap="userInfoMap">
-		{call hmit.validate_user(?,?,?)}
-	</procedure>
 	<select id="getDeviceType" resultClass="com.vos.DeviceType">
 		<![CDATA[
-			select type_id as id,name from hmit_device_type
+			select type_id,name from hmit_device_type
 		]]>
 	</select>
-	<select id="getConfigType" resultClass="com.vos.ConfigType">
-		<![CDATA[
-			select id,type as name from hmit_config_type
-		]]>
-	</select>
-	<select id="getCompany" resultClass="com.vos.MaintainCompanyVo">
-		<![CDATA[
-			select COMPANY_ID as id,COMPANY_NAME as name, CONTRACT_PERSON as contract,CONTRACT_NO as contractNo,address from hmit_maintain_company
-		]]>
-	</select>
-			<select id="getDeviceByNFC" resultClass="com.vos.Device" parameterClass="java.lang.String">
-		<![CDATA[
-			 		select i.id as id,i.brand as brand,t.name as type,i.series_no as seriesNo,i.b_date as bDate,i.b_company as bCompany,
-				nvl(i.b_price,0) as bPrice,i.guarantee_date as guaranteeDate,i.expired_date as expireDate,
-				c.COMPANY_NAME as company,c.CONTRACT_PERSON as contract, c.CONTRACT_NO as contractNo,i.login_name as loginName,i.login_pwd as loginPwd,nvl(i.port_number,0) as portNumber,
-				i.model_no as modelNo from hmit_base_info i,hmit_device_type t,hmit_maintain_company c
-				 where i.type_id = t.type_id and i.COMPANY_ID = c.COMPANY_ID and i.series_no = #seriesNo#
-		]]>
-	</select>
-	<select id="getPortNumbers" resultClass="java.lang.Integer" parameterClass="java.lang.Integer">
-		<![CDATA[
-			select port_number from hmit_base_info where id = #value#
-		]]>
 	
+	<select id="getCustomerName" resultClass="com.vos.DeviceType">
+		<![CDATA[
+			select customer_id,full_name from hmit_user where role_id = 2
+		]]>
 	</select>
-	<parameterMap class="java.util.Map" id="userInfoMap">
-		<parameter property="id" mode="IN" javaType="java.lang.Integer" jdbcType="INTEGER"/>
-		<parameter property="portNum" mode="IN" javaType="java.lang.Integer" jdbcType="INTEGER"/>
-		<parameter property="sNo" mode="OUT" javaType="java.lang.String" jdbcType="VARCHAR"/>
-		<parameter property="sName" mode="OUT" javaType="java.lang.String" jdbcType="VARCHAR"/>
-		<parameter property="nNo" mode="OUT" javaType="java.lang.String" jdbcType="VARCHAR" nullValue=""/>
-		<parameter property="nPort" mode="OUT" javaType="java.lang.Integer" jdbcType="INTEGER" nullValue=""/>
-		<parameter property="nName" mode="OUT" javaType="java.lang.String" jdbcType="VARCHAR" nullValue=""/>
-	</parameterMap>
-	<procedure id="getPortInfo" parameterMap="userInfoMap">
 	
-		{call hmit.get_port_info(?,?,?,?,?,?,?)}
-	</procedure>
-	<parameterMap class="com.vos.PortInfoVo" id="portPara">
-		<parameter property="sName" mode="IN" javaType="java.lang.String" jdbcType="VARCHAR"/>
-		<parameter property="sNo" mode="IN" javaType="java.lang.String" jdbcType="VARCHAR"/>
-		<parameter property="sPort" mode="IN" javaType="java.lang.Integer" jdbcType="INTEGER"/>
-		<parameter property="nName" mode="IN" javaType="java.lang.String" jdbcType="VARCHAR"/>
-		<parameter property="nNo" mode="IN" javaType="java.lang.String" jdbcType="VARCHAR"/>
-		<parameter property="nPort" mode="IN" javaType="java.lang.Integer" jdbcType="INTEGER"/>
-		<parameter property="isVailable" mode="IN" javaType="java.lang.String" jdbcType="VARCHAR"/>
-		<parameter property="newOrUpdate" mode="IN" javaType="java.lang.String" jdbcType="VARCHAR"/>
-		<parameter property="result" mode="OUT" javaType="java.lang.Integer" jdbcType="INTEGER"/>
-	</parameterMap>
-	<procedure id="updatePortInfo" parameterMap="portPara">
-		{call hmit.update_port_info(?,?,?,?,?,?,?,?,?)}
-	</procedure>
-	<parameterMap class="java.util.Map" id="searchParam">
-		<parameter property="brand" mode="IN" javaType="java.lang.String" jdbcType="VARCHAR"/>
-		<parameter property="bStartDate" mode="IN" javaType="java.lang.String" jdbcType="VARCHAR"/>
-		<parameter property="bEndDate" mode="IN" javaType="java.lang.String" jdbcType="VARCHAR"/>
-		<parameter property="beginRow" mode="IN" javaType="java.lang.Integer" jdbcType="INTEGER"/>
-		<parameter property="endRow" mode="IN" javaType="java.lang.Integer" jdbcType="INTEGER"/>
-		<parameter property="list" mode="OUT" javaType="java.sql.ResultSet" jdbcType="ORACLECURSOR" resultMap="searchResult"/>
-	</parameterMap>
-	<resultMap class="com.vos.Device" id="searchResult">
-		 <result property="id" column="id" jdbcType="INTEGER" nullValue=""/>  
-		 <result property="brand" column="brand" jdbcType="VARCHAR" nullValue=""/> 
-		 <result property="type" column="type" jdbcType="VARCHAR" nullValue=""/> 
-		 <result property="seriesNo" column="seriesNo" jdbcType="VARCHAR" nullValue=""/> 
-		 <result property="bDate" column="bDate" jdbcType="VARCHAR" nullValue=""/> 
-		 <result property="bCompany" column="bCompany" jdbcType="VARCHAR" nullValue=""/> 
-		 <result property="bPrice" column="bPrice" jdbcType="VARCHAR" nullValue=""/> 
-		 <result property="guaranteeDate" column="guaranteeDate" jdbcType="VARCHAR" nullValue=""/> 
-		 <result property="expireDate" column="expireDate" jdbcType="VARCHAR" nullValue=""/> 
-		 <result property="company" column="company" jdbcType="VARCHAR" nullValue=""/> 
-		 <result property="contract" column="contract" jdbcType="VARCHAR" nullValue=""/> 
-		 <result property="contractNo" column="contractNo" jdbcType="VARCHAR" nullValue=""/> 
-		 <result property="loginName" column="loginName" jdbcType="VARCHAR" nullValue=""/> 
-		 <result property="loginPwd" column="loginPwd" jdbcType="VARCHAR" nullValue=""/> 
-		 <result property="portNumber" column="portNumber" jdbcType="INTEGER" nullValue=""/> 
-		 <result property="modelNo" column="modelNo" jdbcType="VARCHAR" nullValue=""/> 
-	</resultMap>
-	<procedure id="queryBySearch" parameterMap="searchParam">
-		{call hmit.query_by_search(?,?,?,?,?,?)}
-	</procedure>
-	<parameterMap class="java.util.Map" id="searchCountParam">
-		<parameter property="count" mode="OUT" javaType="java.lang.Integer" jdbcType="INTEGER"/>
-		<parameter property="brand" mode="IN" javaType="java.lang.String" jdbcType="VARCHAR"/>
-		<parameter property="bStartDate" mode="IN" javaType="java.lang.String" jdbcType="VARCHAR"/>
-		<parameter property="bEndDate" mode="IN" javaType="java.lang.String" jdbcType="VARCHAR"/>
-	</parameterMap>
-	<procedure id="getAllDeviceBySearch" parameterMap="searchCountParam">
-	 	{call hmit.get_device_count_by_search(?,?,?,?)}
-	</procedure>
+	<select id="getCompanyName" resultClass="com.vos.DeviceType">
+		<![CDATA[
+			select company_id,company_name from hmit_maintain_company
+		]]>
+	</select>
+		
+	<select id="getFilePathById" parameterClass="java.lang.Integer"
+		resultClass="java.lang.String">
+		<![CDATA[
+			select config_file_path from hmit_base_info where device_id=#value#
+		]]>
+	</select>
+	
+	<select id="getConfigFileExplain" parameterClass="java.lang.Integer"
+		resultClass="java.lang.String">
+		<![CDATA[
+			select config_explain_file_path from hmit_base_info where device_id=#value#
+		]]>
+	</select>
+		
+	<select id="getSeriesNoById" parameterClass="java.lang.Integer"
+		resultClass="java.lang.String">
+		<![CDATA[
+			select series_no from hmit_base_info where device_id=#value#
+		]]>
+	</select>
+	<!-- Maintain -->
+	<select id="getAllMaintain" resultClass="com.vos.Maintain" parameterClass="java.util.Map">
+		<![CDATA[
+			select full_name,name,company_name,contract_person,contract_no,hmit_maintain_company.address,
+			device_id,brand,guarantee_date,expired_date,hmit_base_info.login_name,login_pwd,model_no,
+			location,port_number,status,disable_date,life_cycle
+			from hmit_base_info
+			left join hmit_device_type on hmit_base_info.type_id = hmit_device_type.type_id
+			left join hmit_maintain_company on hmit_base_info.company_id=hmit_maintain_company.company_id
+			left join hmit_user on hmit_base_info.customer_id=hmit_user.customer_id
+		]]>
+		<dynamic prepend="where"> 
+          	<isNotEmpty prepend="and" property="search">       
+                (brand like '%$search$%')    	
+          	</isNotEmpty>  
+          	<isNotEmpty prepend="or" property="search">       
+                (name like '%$search$%')    	
+          	</isNotEmpty>
+          	<isNotEmpty prepend="or" property="search">       
+                (series_no like '%$search$%')    	
+          	</isNotEmpty>
+          	<isNotEmpty prepend="or" property="search">       
+                (model_no like '%$search$%')    	
+          	</isNotEmpty>
+          	<isNotEmpty prepend="or" property="search">       
+                (location like '%$search$%')    	
+          	</isNotEmpty>
+		</dynamic>	
+		order by device_id ASC
+		limit #firstRow#,#pageSize#
+	</select>
+		
+	<!-- <select id="getAllMaintainList" resultClass="com.vos.Maintain" parameterClass="java.util.Map">
+		<![CDATA[
+			select full_name,name,company_name,contract_person,contract_no,hmit_maintain_company.address,
+			device_id,brand,guarantee_date,expired_date,hmit_base_info.login_name,login_pwd,
+			location,port_number,status,disable_date,life_cycle
+			from hmit_base_info,hmit_device_type,hmit_maintain_company,hmit_user
+			where hmit_base_info.type_id=hmit_device_type.type_id
+		    AND hmit_base_info.company_id=hmit_maintain_company.company_id
+		    AND hmit_base_info.customer_id=hmit_user.customer_id
+		    AND   full_name like '%$search$%' or name like '%$search$%'
+		    or company_name like '%$search$%' or contract_no like '%$search$%' or hmit_maintain_company.address like '%$search$%'
+		    or brand like '%$search$%' or guarantee_date like '%$search$%' or expired_date like '%$search$%'
+		    or hmit_base_info.login_name like '%$search$%' or login_pwd like '%$search$%' or location like '%$search$%'
+		    or port_number like '%$search$%' or status like '%$search$%' or disable_date like '%$search$%'
+		    or life_cycle like '%$search$%'  or device_id =#search# 
+			limit #firstRow#,#pageSize#
+		]]>
+	</select> -->
+
+	<select id="getAllMaintainCount" parameterClass="com.vos.Maintain" resultClass="java.lang.Integer" >
+		<![CDATA[
+			select count(*) from hmit_base_info
+		]]>
+	</select>
+	
+	<!-- Port -->
+	<select id="getAllPort" resultClass="com.vos.Port" parameterClass="java.util.Map">
+		<![CDATA[
+			SELECT id,self_id,s_port,s_type,n_port,n_type,is_available,brand,hmit_port_info.next_id,brand2 FROM hmit_port_info,hmit_base_info,
+			(SELECT hmit_port_info.next_id,hmit_base_info.brand as brand2 
+			FROM hmit_port_info,hmit_base_info where hmit_port_info.next_id = hmit_base_info.device_id GROUP BY next_id) as b
+			where hmit_port_info.self_id = hmit_base_info.device_id AND hmit_port_info.next_id = b.next_id
+			limit #firstRow#,#pageSize#
+		]]>
+	</select>
+		
+	<select id="getAllPortList" resultClass="com.vos.Port" parameterClass="java.util.Map">
+		<![CDATA[
+			SELECT id,self_id,s_port,s_type,n_port,n_type,is_available,brand,hmit_port_info.next_id,brand2 FROM hmit_port_info,hmit_base_info,
+			(SELECT hmit_port_info.next_id,hmit_base_info.brand as brand2 
+			FROM hmit_port_info,hmit_base_info
+			where hmit_port_info.next_id = hmit_base_info.device_id GROUP BY next_id) as b
+			where hmit_port_info.self_id = hmit_base_info.device_id AND hmit_port_info.next_id = b.next_id
+		    and brand like '%$search$%'  
+			or s_type like '%$search$%' or n_port like '%$search$%' or n_type like '%$search$%'
+			or is_available like '%$search$%'  or id =#search# 
+			limit #firstRow#,#pageSize#
+		]]>
+	</select>
+
+	<select id="getAllPortCount" parameterClass="com.vos.Port" resultClass="java.lang.Integer" >
+		<![CDATA[
+			select count(*) from hmit_port_info
+		]]>
+	</select>
+	
+	<delete id="deletePort" parameterClass="java.lang.Integer">
+		delete from hmit_port_info where id = #id#
+	</delete>
+	
+	<insert id="addDevicePort" parameterClass="com.vos.Port">
+		<![CDATA[				  
+			insert into hmit_port_info(id,self_id,s_port,s_type,next_id,n_port,n_type,is_available)
+              values(#id#,#self_id#,#s_port#,#s_type#,#next_id#,#n_port#,#n_type#,#is_available#)
+			]]>
+	</insert>
+	
+	<update id="updatePort" parameterClass="com.vos.Port">
+		<![CDATA[
+			update hmit_port_info set s_port=#s_port#,next_id=#next_id#,n_port=#n_port#,
+			n_type=#n_type#,is_available=#is_available# where id=#id#
+		]]>
+	</update>
+	
+	<select id="getPortType" resultClass="com.vos.PortVo" parameterClass="java.util.Map">
+		<![CDATA[
+			select device_id,brand,model_no from hmit_base_info,hmit_port_info
+			where hmit_base_info.device_id=hmit_port_info.next_id
+			and next_id=#next_id#
+			GROUP BY device_id
+		]]>
+	</select>
+	
+	<select id="getPortBrand" resultClass="com.vos.PortVo">
+		<![CDATA[
+			select device_id,brand,model_no from hmit_base_info
+		]]>
+	</select>
+
+	<!-- config -->
+	<select id="getAllConfig" resultClass="com.vos.Config" parameterClass="java.util.Map">
+		<![CDATA[
+			select change_id,brand,model_no,reason,detail,type,change_date,full_name,operator as customer_id
+			from hmit_config_change_history
+			left join hmit_base_info on hmit_config_change_history.device_id=hmit_base_info.device_id
+			left join hmit_user on hmit_config_change_history.operator=hmit_user.customer_id
+		]]>
+		<dynamic prepend="where"> 
+          	<isNotEmpty prepend="and" property="search">       
+                (brand like '%$search$%')    	
+          	</isNotEmpty>
+          	<isNotEmpty prepend="or" property="search">       
+                (model_no like '%$search$%')    	
+          	</isNotEmpty>
+          		<isNotEmpty prepend="or" property="search">       
+                (reason like '%$search$%')    	
+          	</isNotEmpty>
+          		<isNotEmpty prepend="or" property="search">       
+                (type like '%$search$%')    	
+          	</isNotEmpty>
+          		<isNotEmpty prepend="or" property="search">       
+                (full_name like '%$search$%')    	
+          	</isNotEmpty>
+       	</dynamic>  
+			ORDER BY change_id ASC
+			limit #firstRow#,#pageSize#
+	</select>
+		
+	<!-- <select id="getAllConfigList" resultClass="com.vos.Config" parameterClass="java.util.Map">
+		<![CDATA[
+			select change_id,brand,model_no,reason,detail,type,change_date,full_name,hmit_user.customer_id
+			from hmit_config_change_history,hmit_base_info,hmit_user
+			where hmit_config_change_history.device_id=hmit_base_info.device_id
+			and hmit_config_change_history.operator=hmit_user.customer_id
+			ORDER BY change_id ASC
+	    	and brand like '%$search$%' or reason like '%$search$%'
+	     	or detail like '%$search$%' or type like '%$search$%'  or change_date like '%$search$%'
+	    	or operator like '%$search$%' or change_id =#search#
+			limit #firstRow#,#pageSize#
+		]]>
+	</select> -->
+
+	<select id="getAllConfigCount" parameterClass="com.vos.Config" resultClass="java.lang.Integer" >
+		<![CDATA[
+			select count(*) from hmit_config_change_history
+		]]>
+	</select>
+	
+	<insert id="addConfig" parameterClass="com.vos.Config">
+		<![CDATA[				  
+			insert into hmit_config_change_history(change_id,device_id,reason,detail,type,change_date,operator)
+				values(#change_id#,#device_id#,#reason#,#detail#,#type#,#change_date#,#operator#)
+			]]>
+	</insert>
+	
+	<delete id="deleteConfig"  parameterClass="java.lang.Integer">
+		delete from hmit_config_change_history where change_id=#change_id#
+	</delete>
+	
+	<update id="updateConfig" parameterClass="com.vos.Config">
+		<![CDATA[
+			update hmit_config_change_history set reason=#reason#,detail=#detail#,type=#type#,
+			change_date=#change_date#,operator=#operator# where change_id=#change_id#
+		]]>
+	</update>
+	
+	<select id="getDeviceBrand" resultClass="com.vos.DeviceSearchVo">
+		<![CDATA[
+			select device_id,brand from hmit_base_info
+		]]>
+	</select>
+	
+	<select id="getOperator" resultClass="com.vos.DeviceType">
+		<![CDATA[
+			select customer_id,full_name from hmit_user where role_id=3 
+		]]>
+	</select>
+	
+	<!-- user -->
+	<select id="getAllUser" resultClass="com.vos.User" parameterClass="java.util.Map">
+		<![CDATA[
+			 select customer_id,full_name,login_name,password,phone,address,email
+			  from hmit_user where role_id=3
+		]]>
+		<dynamic>
+	 		<isNotEmpty prepend="AND" property="search">       
+                (full_name like '%$search$%')    	
+          	</isNotEmpty>
+          	<isNotEmpty prepend="OR" property="search">       
+                (login_name like '%$search$%')    	
+          	</isNotEmpty>  
+          	<isNotEmpty prepend="OR" property="search">       
+                (password like '%$search$%')    	
+          	</isNotEmpty>  
+       		<isNotEmpty prepend="OR" property="search">       
+                (phone like '%$search$%')    	
+          	</isNotEmpty>  
+        	<isNotEmpty prepend="OR" property="search">       
+                (address like '%$search$%')    	
+          	</isNotEmpty>
+          	<isNotEmpty prepend="OR" property="search">       
+                (email like '%$search$%')    	
+          	</isNotEmpty>            
+		</dynamic>	
+		order by customer_id ASC
+	 	limit #firstRow#,#pageSize#
+	</select>
+		
+	<!-- <select id="getAllUserList" resultClass="com.vos.User" parameterClass="java.util.Map">
+		<![CDATA[
+			 select customer_id,full_name,login_name,password,phone,address,email
+			 from hmit_user where role_id=3 and full_name like '%$search$%'
+			 or login_name like '%$search$%'	or password like '%$search$%'
+			 or phone like '%$search$%' 		or address like '%$search$%'
+			 or email like '%$search$%'		or customer_id =#search# 
+			 limit #firstRow#,#pageSize#
+		]]>
+	</select> -->
+
+	<select id="getAllUserCount" parameterClass="com.vos.User" resultClass="java.lang.Integer" >
+		<![CDATA[
+			select count(*) from hmit_user where role_id=3
+		]]>
+	</select>
+	
+	<insert id="addUser" parameterClass="com.vos.User">
+		<![CDATA[				  
+			insert into hmit_user(customer_id,full_name,login_name,password,phone,address,email,role_id)
+               values(#customer_id#,#full_name#,#login_name#,#password#,#phone#,#address#,#email#,#role_id#)
+			]]>
+	</insert>
+	
+	<delete id="deleteUser"  parameterClass="java.lang.Integer">
+		delete from hmit_user where customer_id=#customer_id#
+	</delete>
+	
+	<update id="updateUser" parameterClass="com.vos.User">
+		<![CDATA[
+			update hmit_user set full_name=#full_name#,login_name=#login_name#,password=#password#,
+			phone=#phone#,address=#address#,email=#email#  where customer_id=#customer_id#
+		]]>
+	</update>
+	
+	<!-- check -->
+	<select id="getAllCheck" resultClass="com.vos.Check" parameterClass="java.util.Map">
+		<![CDATA[
+			select id,brand,name,model_no,content_result,check_else,full_name,check_time,check_result
+			from hmit_check_record
+			left join hmit_base_info on hmit_check_record.device_id=hmit_base_info.device_id
+			left join hmit_user on hmit_check_record.customer_id=hmit_user.customer_id
+			left join hmit_device_type on hmit_base_info.type_id=hmit_device_type.type_id
+		]]>
+	<!--  <dynamic prepend="where"> 
+          	<isNotEmpty prepend="and" property="search">       
+                (brand like '%$search$%')    	
+          	</isNotEmpty>
+          	<isNotEmpty prepend="or" property="search">       
+                (name like '%$search$%')    	
+          	</isNotEmpty>
+          		<isNotEmpty prepend="or" property="search">       
+                (model_no like '%$search$%')    	
+          	</isNotEmpty>
+         	<isNotEmpty prepend="or" property="search">       
+                (check_time like '%$search$%')    	
+          	</isNotEmpty>
+          	<isNotEmpty prepend="or" property="search">       
+                (full_name like '%$search$%')    	
+          	</isNotEmpty>
+       	</dynamic>  
+		 limit #firstRow#,#pageSize# -->
+	</select>
+		
+	<!-- <select id="getAllCheckList" resultClass="com.vos.Check" parameterClass="java.util.Map">
+		<![CDATA[
+			select id,brand,name,model_no,content_result,check_else,full_name,check_time,check_result
+			from hmit_check_record,hmit_user,hmit_base_info,hmit_device_type
+			where hmit_check_record.customer_id=hmit_user.customer_id
+			and hmit_base_info.device_id=hmit_check_record.device_id
+			and hmit_base_info.type_id=hmit_device_type.type_id
+			and brand like '%$search$%' or name like '%$search$%' or model_no like '%$search$%' 
+			or content_result like '%$search$%' or check_else like '%$search$%' or full_name like '%$search$%' 
+			or check_time like '%$search$%' or check_result like '%$search$%'  or id =#search# 
+			limit #firstRow#,#pageSize#
+		]]>
+	</select> -->
+
+	<select id="getAllCheckCount" parameterClass="com.vos.Check" resultClass="java.lang.Integer" >
+		<![CDATA[
+			select count(*) from hmit_check_record
+		]]>
+	</select>
+	
+	<select id="getAllCheckInfo" resultClass="com.vos.CheckInfo" parameterClass="java.util.Map">
+		<![CDATA[
+			select content_id,name,check_content,check_method
+			from hmit_check_info
+			left join hmit_device_type on  hmit_check_info.type_id=hmit_device_type.type_id
+			order by name ,content_id 
+		]]>
+		<dynamic prepend="where"> 
+          	<isNotEmpty prepend="and" property="search">       
+                (name like '%$search$%')    	
+          	</isNotEmpty>
+       	</dynamic>  
+       	limit #firstRow#,#pageSize#
+	</select>
+		
+	<!-- <select id="getAllCheckInfoList" resultClass="com.vos.CheckInfo" parameterClass="java.util.Map">
+		<![CDATA[
+			select content_id,name,check_content,check_method
+			from hmit_check_info,hmit_device_type
+			where hmit_check_info.type_id=hmit_device_type.type_id
+			and name like '%$search$%' or check_content like '%$search$%'
+			or check_method like '%$search$%' or  content_id = #search#
+			limit #firstRow#,#pageSize#
+		]]>
+	</select> -->
+
+	<select id="getAllCheckInfoCount" parameterClass="com.vos.CheckInfo" resultClass="java.lang.Integer" >
+		<![CDATA[
+			select count(*) from hmit_check_info
+		]]>
+	</select>
+	
+	<insert id="addCheckInfo" parameterClass="com.vos.CheckInfo">
+		<![CDATA[				  
+			insert into hmit_check_info(content_id,type_id,check_content,check_method)
+              values(#content_id#,#type_id#,#check_content#,#check_method#)
+		]]>
+	</insert>
+	
+	<delete id="deleteCheckInfo"  parameterClass="java.lang.Integer">
+		delete from hmit_check_info where content_id=#content_id#
+	</delete>
+	
+	<update id="updatecheckinfo" parameterClass="com.vos.CheckInfo">
+		<![CDATA[
+			update hmit_check_info set check_content=#check_content#,check_method=#check_method#
+		   	where content_id=#content_id#
+		]]>
+	</update>
+	
+	<select id="getAllCheckTask" resultClass="com.vos.CheckTask" parameterClass="java.util.Map">
+		<![CDATA[
+			select plan_id,brand,hmit_check_distribution.customer_id,name,model_no,full_name,check_time,check_cycle,remark 
+			from hmit_check_distribution
+			left join hmit_base_info on hmit_check_distribution.device_id=hmit_base_info.device_id
+			left join hmit_user on hmit_check_distribution.customer_id=hmit_user.customer_id
+			left join hmit_device_type on hmit_base_info.type_id=hmit_device_type.type_id
+		]]>
+		<dynamic prepend="where"> 
+          	<isNotEmpty prepend="and" property="search">       
+                (brand like '%$search$%')    	
+          	</isNotEmpty>
+          	<isNotEmpty prepend="or" property="search">       
+                (name like '%$search$%')    	
+          	</isNotEmpty>
+          		<isNotEmpty prepend="or" property="search">       
+                (model_no like '%$search$%')    	
+          	</isNotEmpty>
+         	<isNotEmpty prepend="or" property="search">       
+                (check_time like '%$search$%')    	
+          	</isNotEmpty>
+          	<isNotEmpty prepend="or" property="search">       
+                (full_name like '%$search$%')    	
+          	</isNotEmpty>
+       	</dynamic>  
+		ORDER BY plan_id desc
+		limit #firstRow#,#pageSize#
+	</select>
+		
+<!-- 	<select id="getAllCheckTaskList" resultClass="com.vos.CheckTask" parameterClass="java.util.Map">
+		<![CDATA[
+			select plan_id,brand,name,model_no,full_name,check_time,check_cycle,remark
+			from hmit_check_distribution,hmit_base_info,hmit_user,hmit_device_type
+			where hmit_check_distribution.device_id=hmit_base_info.device_id
+			and hmit_check_distribution.customer_id=hmit_user.customer_id
+			and hmit_base_info.type_id=hmit_device_type.type_id 
+			and brand like '%$search$%'  or full_name like '%$search$%' or name like '%$search$%'  or model_no like '%$search$%'
+		 	or check_time like '%$search$%'  or check_cycle like '%$search$%'
+			or remark like '%$search$%' or plan_id = #search#
+			limit #firstRow#,#pageSize#
+		]]>
+	</select> -->
+
+	<select id="getAllCheckTaskCount" parameterClass="com.vos.CheckTask" resultClass="java.lang.Integer" >
+		<![CDATA[
+			select count(*) from hmit_check_distribution
+		]]>
+	</select>
+
+	<insert id="addCheckTask" parameterClass="com.vos.CheckTask">
+		<![CDATA[				  
+			insert into hmit_check_distribution(plan_id,device_id,customer_id,check_time,check_cycle,remark)
+                  values(#plan_id#,#device_id#,#customer_id#,#check_time#,#check_cycle#,#remark#)
+			]]>
+	</insert>
+	
+	<delete id="deleteCheckTask"  parameterClass="java.lang.Integer">
+		delete from hmit_check_distribution where plan_id=#plan_id#
+	</delete>
+
+	<update id="updatechecktask" parameterClass="com.vos.CheckTask">
+		<![CDATA[
+			update hmit_check_distribution set check_time=#check_time#,check_cycle=#check_cycle#,
+			remark=#remark#,customer_id=#customer_id# where plan_id=#plan_id#
+		]]>
+	</update>
+	
+	<select id="getCustomer" resultClass="com.vos.DeviceType">
+		<![CDATA[
+			select customer_id,full_name from hmit_user where role_id = 3
+		]]>
+	</select>
+	
+	<select id="getDevice" resultClass="com.vos.CheckTaskVo" parameterClass="java.util.Map">
+		<![CDATA[
+			select device_id,brand,name,model_no from hmit_base_info,hmit_device_type
+			where  hmit_base_info.type_id=hmit_device_type.type_id
+		 	and customer_id=#customer#
+		]]>
+	</select>
+	
+	<select id="getcheckinfo" resultClass="com.vos.CheckInfoSerach" parameterClass="java.util.Map">
+		<![CDATA[
+			select content_id,check_content,check_method
+			from hmit_check_info,hmit_check_distribution,hmit_base_info
+			where hmit_check_distribution.device_id=hmit_base_info.device_id
+			and hmit_base_info.type_id=hmit_check_info.type_id
+			and plan_id=#plan_id#
+		]]>
+	</select>
+	
+	<select id="getCheckdInfoId" resultClass="com.vos.CheckInfoSerach" parameterClass="java.util.Map">
+		<![CDATA[
+			select content_id
+			from hmit_check_info,hmit_check_distribution,hmit_base_info
+			where hmit_check_distribution.device_id=hmit_base_info.device_id
+			and hmit_base_info.type_id=hmit_check_info.type_id
+			and plan_id=#plan_id#
+		]]>
+	</select>
+	
+	<select id="getDeviceIdAndCustomerId" resultClass="com.vos.CheckTaskSearch" parameterClass="java.util.Map">
+		<![CDATA[
+			select device_id,customer_id,check_time from hmit_check_distribution where plan_id=#plan_id#
+		]]>
+	</select>
+	
+	<insert id="addCheckRecord" parameterClass="com.vos.Check">
+		<![CDATA[				  
+			insert into hmit_check_record(device_id,customer_id,content_id,content_result,check_result,check_else,check_time)
+                  values(#device_id#,#customer_id#,#content_id#,#content_result#,#check_result#,#check_else#,#check_time#)
+			]]>
+	</insert>
+	
+	<insert id="addCheckhandle" parameterClass="com.vos.Check">
+		<![CDATA[	
+			insert into hmit_check_record (device_id,customer_id,content_id,content_result,check_result,check_else,check_time,
+			handle_method,handle_result,handle_time,handle_remark)
+			values(#device_id#,#customer_id#,#content_id#,#content_result#,#check_result#,#check_else#,#check_time#,
+			#handle_method#,#handle_result#,#handle_time#,#handle_remark#)
+			]]>
+	</insert>
+	
+	<select id="getAllCheckError" resultClass="com.vos.CheckError" parameterClass="java.util.Map">
+		<![CDATA[
+			select a.* from(select id,brand,name,content_result,model_no,handle_method,handle_result,handle_time,handle_remark 
+			from hmit_check_record
+			left join hmit_base_info on hmit_check_record.device_id=hmit_base_info.device_id
+			left join hmit_device_type on hmit_base_info.type_id=hmit_device_type.type_id) AS a 
+			where content_result=2 
+		]]>
+		<dynamic>
+			<isNotEmpty prepend="and" property="search">
+				(brand like '%$search$%')
+			</isNotEmpty>
+          	<isNotEmpty prepend="or" property="search">       
+                (handle_time like '%$search$%')    	
+          	</isNotEmpty>
+          	<isNotEmpty prepend="or" property="result">       
+                (handle_result = #result#)    	
+          	</isNotEmpty>
+		</dynamic>
+		
+		limit #firstRow#,#pageSize#
+	</select>
+		
+<!-- 	<select id="getAllCheckErrorList" resultClass="com.vos.CheckError" parameterClass="java.util.Map">
+		<![CDATA[
+			select id,brand,name,model_no,handle_method,handle_result,handle_time,handle_remark 
+			from hmit_check_record,hmit_base_info,hmit_device_type
+			where hmit_check_record.device_id=hmit_base_info.device_id
+			and hmit_base_info.type_id=hmit_device_type.type_id
+			and content_result= 2  and brand like '%$search$%' or name like '%$search$%'  or model_no like '%$search$%'
+			or full_name like '%$search$%' or handle_method like '%$search$%'  or handle_result like '%$search$%'
+			or handle_time like '%$search$%' or handle_remark like '%$search$%' or id = #search#
+			limit #firstRow#,#pageSize#
+		]]>
+	</select> -->
+
+	<select id="getAllCheckErrorCount" parameterClass="com.vos.CheckError" resultClass="java.lang.Integer" >
+		<![CDATA[
+			select count(*) from hmit_check_record where content_result= 2
+		]]>
+	</select>
+	
+	<select id="getCheckTask" resultClass="com.vos.CheckTask" parameterClass="java.util.Map">
+		<![CDATA[
+			select plan_id,brand,name,model_no,full_name,check_time,check_cycle,remark
+		 	from hmit_check_distribution,hmit_base_info,hmit_user,hmit_device_type
+			where hmit_check_distribution.device_id=hmit_base_info.device_id
+			and hmit_check_distribution.customer_id=hmit_user.customer_id
+			and hmit_base_info.type_id=hmit_device_type.type_id 
+			and hmit_user.login_name=#optation#
+			order by plan_id desc
+		]]>
+	</select>
+	
+	<select id="getcheckrecord" resultClass="com.vos.Check" parameterClass="java.util.Map">
+		<![CDATA[
+			select id,brand,name,model_no,content_result,check_else,check_result,full_name,check_time
+			from hmit_check_record,hmit_user,hmit_base_info,hmit_device_type
+			where hmit_check_record.customer_id=hmit_user.customer_id
+			and hmit_base_info.device_id=hmit_check_record.device_id
+			and hmit_base_info.type_id=hmit_device_type.type_id
+			and hmit_user.login_name=#optation#
+			order by id desc
+		]]>
+	</select>
+	
+	<select id="getcheckerror" resultClass="com.vos.CheckError" parameterClass="java.util.Map">
+		<![CDATA[
+			select id,brand,name,model_no,handle_method,handle_result,handle_time,handle_remark,full_name
+			from hmit_check_record,hmit_base_info,hmit_device_type,hmit_user
+			where hmit_check_record.device_id=hmit_base_info.device_id
+			and hmit_base_info.type_id=hmit_device_type.type_id
+			and hmit_check_record.customer_id=hmit_user.customer_id
+			and content_result= 2 
+			and hmit_user.login_name=#optation#
+			order by id desc
+		]]>
+	</select>
+	
+	<select id="getdevice" resultClass="com.vos.Device" parameterClass="java.util.Map">
+		<![CDATA[
+			select full_name,name,company_name,
+			brand,series_no,b_date,b_company,b_price,guarantee_date,expired_date,hmit_base_info.login_name,
+			login_pwd,location,port_number,model_no,status,disable_date,life_cycle
+			from hmit_base_info,hmit_device_type,hmit_maintain_company,hmit_user
+			where hmit_base_info.type_id=hmit_device_type.type_id
+		    AND hmit_base_info.company_id=hmit_maintain_company.company_id
+		    AND hmit_base_info.customer_id=hmit_user.customer_id 
+		    AND device_id=#device_id#
+		]]>
+	</select>
+	
 </sqlMap>

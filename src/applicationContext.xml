@@ -78,20 +78,6 @@
 		<aop:advisor advice-ref="txAdvice" pointcut-ref="baseServiceMethods" />
 	</aop:config>
 	<aop:aspectj-autoproxy />
-	
-	<bean id="irmsDao" class="com.dao.imp.IRMSDaoImp">
-		<property name="sqlMapClient" ref="sqlMapClient" />
-	</bean>
-	<bean id="irmsService" class="com.service.imp.IRMSServiceImp">
-		<property name="irmsDao" ref="irmsDao"></property>
-	</bean>
-	
-	<bean id="jiangBeiDao" class="com.dao.imp.JiangBeiDaoImp">
-		<property name="sqlMapClient" ref="sqlMapClient" />
-	</bean>
-	<bean id="jiangBeiService" class="com.service.imp.JiangBeiServiceImp">
-		<property name="jiangBeiDao" ref="jiangBeiDao"></property>
-	</bean>
 
 	<bean id="deviceDao" class="com.dao.imp.DeviceDaoImp">
 		<property name="sqlMapClient" ref="sqlMapClient" />

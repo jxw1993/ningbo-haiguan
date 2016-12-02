@@ -19,7 +19,7 @@ public class UserLoginServiceImp implements UserLoginService {
 	}
 
 	@Override
-	public int validateUser(User user) throws SQLException {
+	public User validateUser(User user) throws SQLException {
 		
 		return userLoginDao.validateUser(user);
 	}
